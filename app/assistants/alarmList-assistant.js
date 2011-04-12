@@ -8,7 +8,7 @@ function AlarmListAssistant(alarm) {
 AlarmListAssistant.prototype.setup = function() {
 	Bip.saveAlarms();
 	this.controller.setupWidget("alarmList",
-		{
+		this.alarmListAttributes = {
 			itemTemplate: "alarmList/listitem",
 			listTemplate: "alarmList/listcontainer",
 			swipeToDelete: true,
@@ -76,7 +76,7 @@ AlarmListAssistant.prototype.setup = function() {
 				}
 			}
 		},
-		{
+		this.alarmListModel = {
 			listTitle: $L("Alarms"),
 			items : Bip.alarms
 		}
@@ -138,6 +138,10 @@ AlarmListAssistant.prototype.setup = function() {
 };
 
 AlarmListAssistant.prototype.activate = function(event) {
+	this.alarmListModel.items = [];
+	this.controller.modelUpdated(this.alarmListModel, this);
+	this.alarmListModel.items = Bip.alarms;
+	this.controller.modelUpdated(this.alarmListModel, this);
 };
 
 AlarmListAssistant.prototype.deactivate = function(event) {

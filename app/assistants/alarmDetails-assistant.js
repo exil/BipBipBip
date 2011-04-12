@@ -181,8 +181,11 @@ AlarmDetailsAssistant.prototype.setup = function() {
 			if(this.isNewAlarm) {
 				Bip.alarms.push(this.alarm);
 			}
-		
-			Mojo.Controller.stageController.pushScene("alarmList");
+			Bip.saveAlarms(function() {
+				// hackish, but alarmList wont be redrawn if we just pop...
+				Mojo.Controller.stageController.popScenesTo({transition: Mojo.Transition.none});
+				Mojo.Controller.stageController.pushScene("alarmList");
+			});
 		}).bind(this)
 	); 
 };

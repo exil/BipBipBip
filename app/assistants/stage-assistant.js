@@ -1,36 +1,71 @@
 Bip = {
 	alarms: [],
-	saveAlarms: function() {
-		Bip.alarms.forEach(function(alarm) {
-			alarm.time = alarm.time.toUTCString();
-		});
-	
-		Mojo.Log.error("Saving cookie: "+JSON.stringify(Bip.alarms));
-		
-		// TODO: Use HTML5/Mojo.Depot instead of cookies...
-		var cookie = new Mojo.Model.Cookie("alarms");
-		cookie.put(Bip.alarms);
-		
-		Bip.alarms.forEach(function(alarm) {
-			alarm.time = new Date(alarm.time);
-		});
-	},
-	loadAlarms: function() {
-		// TODO: Use HTML5/Mojo.Depot instead of cookies...
-		var cookie = new Mojo.Model.Cookie("alarms");
-		var alarms = cookie.get();
-		if(alarms) {
-			Mojo.Log.error("Loading cookie: %j", alarms);
-			Bip.alarms = alarms;
-		
+	saveAlarms: function(callback) {
+		// set up DB if not already
+		if(!Bip.DB) {
+			Bip.DB = new Mojo.Depot(
+				{
+					name:"alarms"
+				}, 
+				function() {
+					Bip.saveAlarms(callback);
+				}
+			);
+		}
+		else {
+			Bip.alarms.forEach(function(alarm) {
+				alarm.time = alarm.time.toUTCString();
+			});
+			Mojo.Log.error("Saving to DB: %j", {alarms: Bip.alarms});
+			Bip.DB.add(
+				"alarmList", 
+				{alarms: Bip.alarms}, 
+				callback
+			);
 			Bip.alarms.forEach(function(alarm) {
 				alarm.time = new Date(alarm.time);
 			});
 		}
 	},
-	resetAlarms: function() {
-		var cookie = new Mojo.Model.Cookie("alarms");
-		cookie.remove();
+	loadAlarms: function(callback) {
+		// set up DB if not already
+		if(!Bip.DB) {
+			Bip.DB = new Mojo.Depot(
+				{
+					name:"alarms"
+				}, 
+				function() {
+					Bip.loadAlarms(callback);
+				}
+			);
+		}
+		else {
+			Bip.DB.get(
+				"alarmList", 
+				function(result) {
+					Mojo.Log.error("Loaded from DB: %j", result);
+					if(result && result.alarms) {
+						Bip.alarms = result.alarms;
+					}
+					Bip.alarms.forEach(function(alarm) {
+						alarm.time = new Date(alarm.time);
+					});
+					if(typeof callback === "function") {
+						callback();
+					}
+				}
+			);
+		}
+	},
+	resetAlarms: function(callback) {
+		Mojo.Log.error("Resetting DB");
+		if(Bip.DB) {
+			Bip.DB.remove(
+				null,
+				"alarmList", 
+				callback
+			);
+		}
 	}
 };
 
@@ -60,10 +95,11 @@ StageAssistant.prototype.setup = function() {
 	alarm.repeat = ["sun", "tue", "wed", "thu", "fri"];
 	Bip.alarms.push(alarm);
 	*/
-	// Bip.resetAlarms();
-	Bip.loadAlarms();
-
-	this.controller.pushScene("alarmList");
+	
+	Bip.loadAlarms((function() {
+		this.controller.pushScene("alarmList");
+	}).bind(this));
+	
 };
 
 function AppAssistant() {}
