@@ -1,6 +1,6 @@
 #alarmList .palm-row {
 	margin: 0;
-	padding: 2px 8px !important;
+	padding: 2px 8px 2px 0 !important;
 	clear: both;
 }
 
@@ -11,6 +11,9 @@
 	text-transform: uppercase;
 	position: relative;
 	top: -3px;
+}
+#alarmList .palm-row.selected .details {
+	color: rgba(200, 200, 200, .7);
 }
 #alarmList .palm-row .details .time {
 	font-size: 12pt;
@@ -58,4 +61,70 @@
 }
 .scene-footer-wrapper {
 	margin-top:-10px;
+}
+
+.checkbox-label {
+	padding-top: 10px;
+}
+
+#repeatSelector {
+	overflow: hidden;
+	height: 0px;
+	clear: both;
+}
+#repeatSelector ol {
+	margin: 15px 10px;
+	padding: 0;
+	height: 48px;
+	clear: both;
+	border-radius: 10px;
+	border: 1px solid #a6a6a5;
+	box-shadow: 1px 1px 0px #eeeee6;
+	-webkit-box-shadow: 1px 1px 0px #eeeee6;
+	
+}
+#repeatSelector ol li {
+	display: block;
+	float: left;
+	text-align: center;
+	width: 42px;
+	height: 48px;
+	line-height: 48px;
+	font-size: 10pt;
+	text-transform: uppercase;
+	border-left: 1px solid #a6a6a5;
+}
+#repeatSelector ol li:first-child {
+	width: 40px;
+	border-left: none !important;
+}
+
+#repeatSelector ol li:last-child {
+	width: 40px;
+}
+
+#time {
+	margin: 0 0 0 10px;
+}
+
+.palm-row.minigames .label {
+	position: relative;
+	top: -4px;
+}
+
+.palm-row.minigames .label .symbol {
+	display: block;
+	float: right;
+	font-weight: bold;
+	font-size: 16px;
+	line-height: 16px;
+	margin-left: 7px;
+	color: #8b8b8a;
+}
+
+.addChain button {
+	width: 310px;
+	padding: 5px 10px;
+	margin: 5px;
+	text-align: center;
 }

@@ -1,12 +1,12 @@
-function AlarmListAssistant() {
+function AlarmListAssistant(alarm) {
+	if(alarm !== undefined) {
+		Bip.alarms.push(alarm);
+		Bip.saveAlarms();
+	}
 }
 
 AlarmListAssistant.prototype.setup = function() {
-	/* this function is for setup tasks that have to happen when the scene is first created */
-		
-	/* use Mojo.View.render to render view templates and add them to the scene, if needed */
-	
-	/* setup widgets here */	
+	Bip.saveAlarms();
 	this.controller.setupWidget("alarmList",
 		{
 			itemTemplate: "alarmList/listitem",
@@ -42,10 +42,10 @@ AlarmListAssistant.prototype.setup = function() {
 					}
 				},
 				setTime: function(propertyValue, model) {
-					if(model.hour !== undefined && model.minute !== undefined) {
+					if(model.time !== undefined && model.time.getHours !== undefined) {
 						var aOrP = '';
-						var hour = model.hour;
-						var minute = model.minute;
+						var hour = model.time.getHours();
+						var minute = model.time.getMinutes();
 						
 						if(Mojo.Format.using12HrTime()) {
 							if(hour < 12 || hour === 24) {
@@ -66,8 +66,13 @@ AlarmListAssistant.prototype.setup = function() {
 						model.timeFormatted = hour+':'+minute+' '+aOrP;
 					}
 				},
-				setGameCount: function(propertyValue, model) {
-					
+				setTitle: function(propertyValue, model) {
+					if(!model.title) {
+						model.titleFormatted = "Alarm";
+					}
+					else {
+						model.titleFormatted = model.title;
+					}
 				}
 			}
 		},
@@ -76,32 +81,67 @@ AlarmListAssistant.prototype.setup = function() {
 			items : Bip.alarms
 		}
 	);
-	this.controller.setupWidget("addAlarm",
-		this.attributes = {
-		},
-		this.model = {
+	this.controller.setupWidget(
+		'alarm-checkbox',
+		{modelProperty: 'enabled'}
+	);
+	Mojo.Event.listen(
+		this.controller.get("alarmList"), 
+		Mojo.Event.propertyChange, 
+		function(event) {
+			Bip.saveAlarms();
+		}
+	); 
+	Mojo.Event.listen(
+		this.controller.get("alarmList"), 
+		Mojo.Event.listTap, 
+		function(event) {
+			Bip.saveAlarms();
+			Mojo.Controller.stageController.pushScene("alarmDetails", event.item);
+		}
+	); 
+	Mojo.Event.listen(
+		this.controller.get("alarmList"), 
+		Mojo.Event.listDelete, 
+		function(event) {
+			Bip.alarms.splice(event.index, 1);
+			Bip.saveAlarms();
+		}
+	); 
+	Mojo.Event.listen(
+		this.controller.get("alarmList"), 
+		Mojo.Event.listReorder, 
+		function(event) {
+			Bip.alarms.splice(event.fromIndex, 1);
+			Bip.alarms.splice(event.toIndex, 0, event.item);
+			Bip.saveAlarms();
+		}
+	); 
+	
+	// set up Add Alarm button
+	this.controller.setupWidget(
+		"addAlarm",
+		{},
+		{
 			label : "Add Alarm",
 			disabled: false
 		}
 	);
-
-	/* add event handlers to listen to events from widgets */
-	Mojo.Event.listen(this.controller.get("addAlarm"), Mojo.Event.tap, (function() {
-		Mojo.Controller.stageController.pushScene("alarmDetails");
-	}).bind(this)); 
+	Mojo.Event.listen(
+		this.controller.get("addAlarm"), 
+		Mojo.Event.tap, 
+		function() {
+			Bip.saveAlarms();
+			Mojo.Controller.stageController.pushScene("alarmDetails");
+		}
+	); 
 };
 
 AlarmListAssistant.prototype.activate = function(event) {
-	/* put in event handlers here that should only be in effect when this scene is active. For
-	   example, key handlers that are observing the document */
 };
 
 AlarmListAssistant.prototype.deactivate = function(event) {
-	/* remove any event handlers you added in activate and do any other cleanup that should happen before
-	   this scene is popped or another scene is pushed on top */
 };
 
 AlarmListAssistant.prototype.cleanup = function(event) {
-	/* this function should do any cleanup needed before the scene is destroyed as 
-	   a result of being popped off the scene stack */
 };

@@ -6,21 +6,23 @@
  * @param {number} hour The hour (0-23) of the alarm
  * @param {number} minute The minute (0-59) of the alarm
  */
-function Alarm(hour, minute) {
-	// generate unique id
-	this.id = new Date().getTime();
+function Alarm(time) {
+	if(time === undefined) {
+		time = new Date();
+	}
 	
-	this.title = "Alarm";
+	// generate unique id
+	this.id = (new Date()).getTime();
+	
+	this.title;
 
-	this.hour = hour;
-	this.minute = minute;
+	this.time = time;
 	
 	this.enabled = true;
 	
 	// repeat on days of the week ["sun", "mon", "tue", "wed", "thu", "fri", "sat"]
 	this.repeat = [];
 	
-	this.canSnooze = true;
 	// length of reprieve granted by snooze button in minutes
 	this.snoozeDuration = 10;
 	
@@ -29,7 +31,7 @@ function Alarm(hour, minute) {
 	// The list of AlarmGames to choose from for this alarm
 	this.activeGames = [];
 	// the number of games to be completed as part of the alarm
-	this.gameCount = 1;
+	this.gameCount = 0;
 	
 	this.alarmChain = [];
 }
@@ -40,9 +42,8 @@ function Alarm(hour, minute) {
  * @param {number} hour The hour (0-23) of the alarm
  * @param {number} minute The minute (0-59) of the alarm
  */
-Alarm.prototype.setTime = function(hour, min) {
-	this.hour = hour;
-	this.minute = minute;
+Alarm.prototype.setTime = function(time) {
+	this.time = time;
 };
 /**
  * Sets the days of the week that the Alarm should repeat
@@ -55,26 +56,6 @@ Alarm.prototype.setRepeat = function(days) {
 	if(this.enabled) {
 		this.setupEvents();
 	}
-};
-/**
- * Allows this Alarm to be snoozed
- * 
- * @this {Alarm}
- * @param {Array} duration (Optional) The length of the snooze in minutes
- */
-Alarm.prototype.enableSnooze = function(duration) {
-	this.canSnooze = true;
-	if(typeof duration === "number") {
-		this.snoozeDuration = duration;
-	}
-};
-/**
- * Prevents this Alarm from being snoozed
- * 
- * @this {Alarm}
- */
-Alarm.prototype.disableSnooze = function() {
-	this.canSnooze = false;
 };
 /**
  * Sets the Alarm's ringer sound
