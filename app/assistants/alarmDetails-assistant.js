@@ -119,6 +119,21 @@ AlarmDetailsAssistant.prototype.setup = function() {
 			}
 		}).bind(this)
 	);
+	Mojo.Event.listen(
+		this.controller.get("repeatCheckLabel"), 
+		Mojo.Event.tap, 
+		(function(event) {
+			this.repeatCheckModel.value = !(this.repeatCheckModel.value);
+			this.controller.modelChanged(this.repeatCheckModel, this.controller.get("repeatCheckLabel"));
+			this.alarm.repeat = [];
+			if(this.repeatCheckModel.value) {
+				this.showRepeatSelector();
+			}
+			else {
+				this.hideRepeatSelector();
+			}
+		}).bind(this)
+	);
 	// TODO: set up weekly repeater widget
 	
 	this.controller.setupWidget("snoozeDuration",
@@ -207,7 +222,7 @@ AlarmDetailsAssistant.prototype.showRepeatSelector = function() {
 		repeatSelector, 
 		"height",
 		"linear",
-		{from: 0, to: 80, duration: .5}
+		{from: 0, to: 70, duration: .4}
 	);
 };
 AlarmDetailsAssistant.prototype.hideRepeatSelector = function() {
@@ -216,6 +231,6 @@ AlarmDetailsAssistant.prototype.hideRepeatSelector = function() {
 		repeatSelector, 
 		"height",
 		"linear",
-		{from: 80, to: 0, duration: .5}
+		{from: 70, to: 0, duration: .4}
 	);
 };

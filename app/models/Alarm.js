@@ -179,9 +179,9 @@ function AlarmSound(name, path) {
  * @constructor
  * @this {AlarmGame}
  * @param {string} name The display name of the minigame
- * @param {function} start A callback to launch the game. Returns true if the game was completed successfully and false if it was failed
+ * @param {function} play A callback to launch the game. Takes successCallback and failureCallback as arguments
  */
-function AlarmGame(name, start) {
+function AlarmGame(name, play) {
 	this.name = name;
-	this.start = start;
+	this.play = play;
 };

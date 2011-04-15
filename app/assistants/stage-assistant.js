@@ -98,8 +98,7 @@ StageAssistant.prototype.setup = function() {
 	*/
 	
 	Bip.loadAlarms((function() {
-//		this.controller.pushScene("alarmList");
-		this.controller.pushScene("setupQuestions"); // temporary
+		this.controller.pushScene("alarmList");
 	}).bind(this));
 	
 };

@@ -64,6 +64,7 @@
 }
 
 .checkbox-label {
+	display: block;
 	padding-top: 10px;
 }
 
@@ -72,6 +73,7 @@
 	height: 0px;
 	clear: both;
 }
+/*
 #repeatSelector ol {
 	margin: 15px 10px;
 	padding: 0;
@@ -101,6 +103,13 @@
 
 #repeatSelector ol li:last-child {
 	width: 40px;
+}
+*/
+#repeatSelector div.palm-radiobutton {
+	margin-left: 10px;
+}
+#repeatSelector div.palm-radiobutton div.radiobutton {
+	width: 43px;
 }
 
 #time {
