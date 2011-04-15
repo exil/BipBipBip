@@ -11,11 +11,29 @@ SetupQuestionsAssistant.prototype.setup = function() {
 	/* use Mojo.View.render to render view templates and add them to the scene, if needed */
 	
 	/* setup widgets here */
-	// picker widget for # questions
+	// ARITHMETIC
 		this.intModel = {intValue: 5};
-		this.controller.setupWidget('arithmeticPicker', {modelProperty:'intValue', min: 0, max: 10}, this.intModel);
+		this.controller.setupWidget('arithmeticPicker',
+			this.attributes = {
+				label: 'Arithmetic',
+				modelProperty: 'intValue',
+				min: 0,
+				max: 10
+			},
+			this.intModel
+		)
 		this.propChange = this.propChange.bindAsEventListener(this);
 		this.controller.listen('arithmeticPicker', Mojo.Event.propertyChange, this.propChange);
+	
+	// save button
+		this.controller.setupWidget("saveButton",
+			{},
+			{
+				label : "Save",
+				disabled: false
+			}
+		);
+	
 	
 	/* add event handlers to listen to events from widgets */
 };
