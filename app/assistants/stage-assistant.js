@@ -78,6 +78,7 @@ function StageAssistant() {}
 
 StageAssistant.prototype.setup = function() {
 	/*
+		boyce's code
 	var alarm = new Alarm(new Date("October 13, 1975 11:00:00"));
 	alarm.title = "Test Alarm 1";
 	alarm.repeat = ["mon", "wed", "fri"];
