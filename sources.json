@@ -13,5 +13,9 @@
     {
         "scenes": "alarmDetails",
         "source": "app/assistants/alarmDetails-assistant.js"
-    }
+    },
+	{
+		"scenes": "setupQuestions",
+		"source": "app/assistants/setupQuestions-assistant.js"
+	}
 ]
