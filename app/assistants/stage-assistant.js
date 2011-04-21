@@ -1,5 +1,4 @@
 Bip = {
-	alarms: [],
 	saveAlarms: function(callback) {
 		// set up DB if not already
 		if(!Bip.DB) {
@@ -14,7 +13,10 @@ Bip = {
 		}
 		else {
 			Bip.alarms.forEach(function(alarm) {
-				alarm.time = alarm.time.toUTCString();
+				Mojo.Log.error("alarm: %j", alarm);
+				if(typeof alarm !== "string") {
+					alarm.time = alarm.time.toUTCString();
+				}
 			});
 			Mojo.Log.error("Saving to DB: %j", {alarms: Bip.alarms});
 			Bip.DB.add(
@@ -74,6 +76,16 @@ Date.prototype.toGMTString = function() {
 	return this.toUTCString();
 };
 
+Array.prototype.removeAll = function(remove) {
+	var result = [];
+	this.forEach(function(item) {
+		if(item !== remove) {
+			result.push(item);
+		}
+	});
+	return result;
+};
+
 function StageAssistant() {}
 
 StageAssistant.prototype.setup = function() {
@@ -97,10 +109,7 @@ StageAssistant.prototype.setup = function() {
 	Bip.alarms.push(alarm);
 	*/
 	
-	Bip.loadAlarms((function() {
-		this.controller.pushScene("alarmList");
-	}).bind(this));
-	
+	this.controller.pushScene("alarmList");	
 };
 
 function AppAssistant() {}

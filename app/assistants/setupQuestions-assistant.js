@@ -22,8 +22,8 @@ SetupQuestionsAssistant.prototype.setup = function() {
 			},
 			this.intModel
 		)
-		this.propChange = this.propChange.bindAsEventListener(this);
-		this.controller.listen('arithmeticPicker', Mojo.Event.propertyChange, this.propChange);
+		// this.propChange = this.propChange.bindAsEventListener(this);
+		// this.controller.listen('arithmeticPicker', Mojo.Event.propertyChange, this.propChange);
 	
 	// save button
 		this.controller.setupWidget("saveButton",

@@ -77,19 +77,18 @@ AlarmDetailsAssistant.prototype.setup = function() {
 			labelPlacement: Mojo.Widget.labelPlacementRight
 		},
 		{
-			time: new Date(this.alarm.time)
+			time: this.alarm.time
 		}
 	);
 	Mojo.Event.listen(
 		this.controller.get("time"), 
 		Mojo.Event.propertyChange, 
 		(function(event) {
-			this.alarm.time = event.value.toUTCString();;
+			this.alarm.time = event.value;
 		}).bind(this)
 	);
 	
-	var repeats = (this.alarm.repeat.length > 0);
-	if(repeats) {
+	if(this.alarm.repeatEnabled) {
 		var repeatSelector = this.controller.get("repeatSelector");
 		Mojo.Animation.animateStyle(
 			repeatSelector, 
@@ -102,7 +101,7 @@ AlarmDetailsAssistant.prototype.setup = function() {
 		"repeatCheck", 
 		{},
 		this.repeatCheckModel = {
-			value: repeats,
+			value: this.alarm.repeatEnabled,
 			disabled: false
 		}
 	);
@@ -110,11 +109,12 @@ AlarmDetailsAssistant.prototype.setup = function() {
 		this.controller.get("repeatCheck"), 
 		Mojo.Event.propertyChange, 
 		(function(event) {
-			this.alarm.repeat = [];
 			if(event.value) {
+				this.alarm.repeatEnabled = true;
 				this.showRepeatSelector();
 			}
 			else {
+				this.alarm.repeatEnabled = false;
 				this.hideRepeatSelector();
 			}
 		}).bind(this)
@@ -125,7 +125,7 @@ AlarmDetailsAssistant.prototype.setup = function() {
 		(function(event) {
 			this.repeatCheckModel.value = !(this.repeatCheckModel.value);
 			this.controller.modelChanged(this.repeatCheckModel, this.controller.get("repeatCheckLabel"));
-			this.alarm.repeat = [];
+			this.alarm.repeat = [false, false, false, false, false, false, false];
 			if(this.repeatCheckModel.value) {
 				this.showRepeatSelector();
 			}
@@ -134,7 +134,41 @@ AlarmDetailsAssistant.prototype.setup = function() {
 			}
 		}).bind(this)
 	);
-	// TODO: set up weekly repeater widget
+	
+	// set up weekly repeater widget
+	Mojo.Event.listen(
+		this.controller.get("repeatSelector"), 
+		Mojo.Event.tap, 
+		(function(event) {
+			var target = $(event.target);
+			if(target.hasClassName("radiobutton")) {
+				target.toggleClassName("selected");
+				var targetDay = target.innerHTML.toLowerCase();
+				var targetIndex = -1;
+				Alarm.daysOfWeek.forEach(function(day, i) {
+					if(day === targetDay) {
+						targetIndex = i;
+					}
+				});
+				if(targetIndex >= 0) {
+					this.alarm.repeat[targetIndex] = target.hasClassName("selected");
+				}
+				// Mojo.Log.error("%j", {index: i, day: target.innerHTML});
+			}
+		}).bind(this)
+	);
+	$$("#repeatSelector .radiobutton").each((function(target) {
+		var targetDay = target.innerHTML.toLowerCase();
+		var targetIndex = -1;
+		Alarm.daysOfWeek.forEach(function(day, i) {
+			if(day === targetDay) {
+				targetIndex = i;
+			}
+		});
+		if(targetIndex >= 0 && this.alarm.repeat[targetIndex]) {
+			$(target).addClassName("selected");
+		}
+	}).bind(this));
 	
 	this.controller.setupWidget("snoozeDuration",
 		{
@@ -222,7 +256,7 @@ AlarmDetailsAssistant.prototype.showRepeatSelector = function() {
 		repeatSelector, 
 		"height",
 		"linear",
-		{from: 0, to: 70, duration: .4}
+		{from: 0, to: 70, duration: 0.4}
 	);
 };
 AlarmDetailsAssistant.prototype.hideRepeatSelector = function() {
@@ -231,6 +265,6 @@ AlarmDetailsAssistant.prototype.hideRepeatSelector = function() {
 		repeatSelector, 
 		"height",
 		"linear",
-		{from: 70, to: 0, duration: .4}
+		{from: 70, to: 0, duration: 0.4}
 	);
 };

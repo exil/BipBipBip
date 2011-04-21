@@ -21,7 +21,8 @@ function Alarm(time) {
 	this.enabled = true;
 	
 	// repeat on days of the week ["sun", "mon", "tue", "wed", "thu", "fri", "sat"]
-	this.repeat = [];
+	this.repeatEnabled = false;
+	this.repeat = [false, false, false, false, false, false, false];
 	
 	// length of reprieve granted by snooze button in minutes
 	this.snoozeDuration = 10;
@@ -35,6 +36,9 @@ function Alarm(time) {
 	
 	this.alarmChain = [];
 }
+
+Alarm.daysOfWeek = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+
 /**
  * Sets the time of the Alarm
  * 

@@ -1,12 +1,35 @@
 function AlarmListAssistant(alarm) {
 	if(alarm !== undefined) {
-		Bip.alarms.push(alarm);
-		Bip.saveAlarms();
+		this.newAlarm = alarm;
 	}
 }
 
 AlarmListAssistant.prototype.setup = function() {
-	Bip.saveAlarms();
+	if(Bip.alarms === undefined) {
+		Bip.alarms = [];
+		Bip.loadAlarms((function() {
+			this.controller.get("spinner-container").hide();
+			this.alarmListModel.items = Bip.alarms;
+			this.controller.modelChanged(this.alarmListModel, this);
+		}).bind(this));
+	}
+	else if(this.newAlarm !== undefined) {
+		this.controller.get("spinner-container").show();
+		Bip.alarms.push(alarm);
+		Bip.saveAlarms((function() {
+			this.controller.get("spinner-container").hide();
+		}).bind(this));
+	}
+	else {
+		this.controller.get("spinner-container").hide();
+	}
+	
+	this.controller.setupWidget("big-spinner", 
+		{
+			spinnerSize: Mojo.Widget.spinnerLarge
+		}, 
+		{}
+	);
 	this.controller.setupWidget("alarmList",
 		this.alarmListAttributes = {
 			itemTemplate: "alarmList/listitem",
@@ -17,27 +40,29 @@ AlarmListAssistant.prototype.setup = function() {
 			formatters: {
 				setDaysOfWeek: function(propertyValue, model) {
 					if(model.repeat !== undefined) {
-						if(model.repeat.length === 7) {
-							model.daysOfWeekFormatted = "Daily";
-						}
-						else if(model.repeat.length === 0) {
+						if(!model.repeatEnabled) {
 							model.daysOfWeekFormatted = "Once";
 						}
-						else if(model.repeat.length === 5) {
-							model.daysOfWeekFormatted = "Weekdays";
-							var i;
-							for(i = 0; i < model.repeat.length; i++) {
-								if(model.repeat[i] === "sat" || model.repeat[i] === "sun") {
-									model.daysOfWeekFormatted = model.repeat.join(' ');
-									break;
-								}
-							}
-							model.repeat.forEach(function() {
-								
-							});
-						}
 						else {
-							model.daysOfWeekFormatted = model.repeat.join(' ');
+							var days = [];
+							model.repeat.forEach(function(day, i) {
+								if(day) {
+									days.push(Alarm.daysOfWeek[i]);
+								}
+							});
+							
+							if(days.length === 7) {
+								model.daysOfWeekFormatted = "Daily";
+							}
+							else if(days.length === 0) {
+								model.daysOfWeekFormatted = "Once";
+							}
+							else if(days.length === 5 && !model.repeat[0] && !model.repeat[6]) {
+								model.daysOfWeekFormatted = "Weekdays";
+							}
+							else {
+								model.daysOfWeekFormatted = days.join(' ');
+							}
 						}
 					}
 				},
@@ -87,7 +112,7 @@ AlarmListAssistant.prototype.setup = function() {
 	);
 	Mojo.Event.listen(
 		this.controller.get("alarmList"), 
-		Mojo.Event.propertyChange, 
+		Mojo.Event.propertyChange,
 		function(event) {
 			Bip.saveAlarms();
 		}
@@ -96,7 +121,6 @@ AlarmListAssistant.prototype.setup = function() {
 		this.controller.get("alarmList"), 
 		Mojo.Event.listTap, 
 		function(event) {
-			Bip.saveAlarms();
 			Mojo.Controller.stageController.pushScene("alarmDetails", event.item);
 		}
 	); 
@@ -131,17 +155,18 @@ AlarmListAssistant.prototype.setup = function() {
 		this.controller.get("addAlarm"), 
 		Mojo.Event.tap, 
 		function() {
-			Bip.saveAlarms();
 			Mojo.Controller.stageController.pushScene("alarmDetails");
 		}
 	); 
 };
 
+AlarmListAssistant.prototype.ready = function(){
+	this.controller.get("big-spinner").mojo.start();
+};
+
 AlarmListAssistant.prototype.activate = function(event) {
-	this.alarmListModel.items = [];
-	this.controller.modelUpdated(this.alarmListModel, this);
 	this.alarmListModel.items = Bip.alarms;
-	this.controller.modelUpdated(this.alarmListModel, this);
+	this.controller.modelChanged(this.alarmListModel, this);
 };
 
 AlarmListAssistant.prototype.deactivate = function(event) {
