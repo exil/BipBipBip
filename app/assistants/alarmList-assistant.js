@@ -32,11 +32,10 @@ AlarmListAssistant.prototype.setup = function() {
 	);
 	this.controller.setupWidget("alarmList",
 		this.alarmListAttributes = {
-			itemTemplate: "alarmList/listitem",
-			listTemplate: "alarmList/listcontainer",
+			itemTemplate: "alarmList/alarmListItem",
+			listTemplate: "alarmList/alarmListContainer",
 			swipeToDelete: true,
 			reorderable: true,
-			emptyTemplate:"alarmList/emptylist",
 			formatters: {
 				setDaysOfWeek: function(propertyValue, model) {
 					if(model.repeat !== undefined) {
@@ -59,6 +58,12 @@ AlarmListAssistant.prototype.setup = function() {
 							}
 							else if(days.length === 5 && !model.repeat[0] && !model.repeat[6]) {
 								model.daysOfWeekFormatted = "Weekdays";
+							}
+							else if(days.length > 3) {
+								model.daysOfWeekFormatted = "";
+								model.repeat.forEach(function(day, i) {
+									model.daysOfWeekFormatted += (day ? Alarm.daysOfWeek[i].charAt(0) : "–")+" ";
+								});
 							}
 							else {
 								model.daysOfWeekFormatted = days.join(' ');
@@ -121,7 +126,9 @@ AlarmListAssistant.prototype.setup = function() {
 		this.controller.get("alarmList"), 
 		Mojo.Event.listTap, 
 		function(event) {
-			Mojo.Controller.stageController.pushScene("alarmDetails", event.item);
+			if(event.originalEvent.down.clientX < 240) {
+				Mojo.Controller.stageController.pushScene("alarmDetails", event.item);
+			}
 		}
 	); 
 	Mojo.Event.listen(

@@ -1,0 +1,13 @@
+<div id="alarm-#{id}" class="palm-row removable" x-mojo-gesture="Mojo.Gesture.HorizontalDrag" x-mojo-touch-feedback="delayed">
+	<div class="palm-row-wrapper">
+		<div name="alarm-checkbox" class="alarm-checkbox" x-mojo-element="ToggleButton" class="left"></div>
+		<div class="details">
+			<div class="time">#{timeFormatted}</div>
+			<div class="days">#{daysOfWeekFormatted}</div>
+		</div>
+		<div class="title truncating-text">
+			#{titleFormatted}
+		</div>
+		<div style="clear: both;"></div>
+	</div>
+</div>

@@ -6,29 +6,30 @@
 
 #alarmList .palm-row {
 	margin: 0;
-	padding: 2px 8px 2px 0 !important;
+	padding: 2px 0px 2px 8px !important;
 	clear: both;
 }
 
 #alarmList .palm-row .details {
-	float: right;
+	float: left;
 	margin: 10px 10px 8px 0;
-	color: rgba(64, 64, 64, .7);
+	color: rgba(64, 64, 64, .8);
 	text-transform: uppercase;
 	position: relative;
 	top: -3px;
+	width: 65px;
 }
 #alarmList .palm-row.selected .details {
-	color: rgba(200, 200, 200, .7);
+	color: rgba(200, 200, 200, .8);
 }
 #alarmList .palm-row .details .time {
 	font-size: 12pt;
 	font-weight: bold;
-	text-align: right;
+	text-align: left;
 }
 #alarmList .palm-row .details .days {
 	font-size: 8pt;
-	text-align: center;
+	text-align: left;
 }
 
 #alarmList .palm-row .title {
@@ -141,9 +142,51 @@
 	color: #8b8b8a;
 }
 
-.addChain button {
-	width: 310px;
+#addChain {
+	height: 57px;
+	padding: 13px 10px 40px 40px;
+	color: #555552;
+	background: url(../images/add-chain-bg.png) no-repeat;
+	margin-bottom: -40px;
+}
+#addChain.selected {
+	color: #fff;
+	background: url(../images/add-chain-selected-bg.png) no-repeat;
+}
+
+#chainList .row, 
+#chainList .palm-row-wrapper {
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+#chainList .chain-header {
+	margin: 0;
 	padding: 5px 10px;
-	margin: 5px;
-	text-align: center;
+	background: #adadac url(../images/subheader-bg.png) repeat-x;
+	border-bottom: 1px solid #f6f6f5;
+	color: white;
+	font-weight: bold;
+	font-size: 16px;
+	line-height: 37px;
+	height: 37px;
+	text-transform: uppercase;
+}
+
+#chainList .chain-header .delete {
+	-webkit-border-image: url(../images/selector-header-red-press.png);
+	-webkit-border-image: url(../images/selector-header-red.png) 0 16 0 16 stretch stretch;
+	-webkit-box-sizing: border-box;
+	border-width: 0px 16px 0px 16px;
+	margin-top: 2px;
+	text-transform: uppercase;
+	display: inline-block;
+	font-size: 14px;
+	height: 35px;
+	line-height: 33px;
+	float: right;
+}
+
+#chainList .chain-header .delete.selected {
+	-webkit-border-image: url(../images/selector-header-red-press.png) 0 16 0 16 stretch stretch;
 }

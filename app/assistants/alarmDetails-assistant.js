@@ -210,6 +210,43 @@ AlarmDetailsAssistant.prototype.setup = function() {
 	}
 	);
 	
+	this.controller.setupWidget("chainList",
+		this.chainListAttributes = {
+			itemTemplate: "alarmDetails/chainListItem",
+			listTemplate: "alarmDetails/chainListContainer",
+			swipeToDelete: true,
+			reorderable: false
+		},
+		this.chainListModel = {
+			listTitle: $L("Chain Alarms"),
+			items : this.alarm.alarmChain
+		}
+	);
+	Mojo.Event.listen(
+		this.controller.get("chainList"), 
+		Mojo.Event.listDelete, 
+		(function(event) {
+			this.alarm.alarmChain.splice(event.index, 1);
+		}).bind(this)
+	); 
+	Mojo.Event.listen(
+		this.controller.get("chainList"), 
+		Mojo.Event.listReorder, 
+		(function(event) {
+			this.alarm.alarmChain.splice(event.fromIndex, 1);
+			this.alarm.alarmChain.splice(event.toIndex, 0, event.item);
+		}).bind(this)
+	); 
+	
+	Mojo.Event.listen(
+		this.controller.get("addChain"), 
+		Mojo.Event.tap, 
+		(function() {
+			this.alarm.alarmChain.push(new ChainAlarm());
+			this.controller.modelChanged(this.chainListModel, this);
+		}).bind(this)
+	); 
+	
 	var saveButtonLabel = "Save Alarm";
 	if(this.isNewAlarm) {
 		saveButtonLabel = "Create Alarm";
