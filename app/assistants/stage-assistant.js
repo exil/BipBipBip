@@ -92,7 +92,7 @@ Array.prototype.removeAll = function(remove) {
 function StageAssistant() {}
 
 StageAssistant.prototype.setup = function() {
-	this.controller.pushScene("alarmList");	
+	this.controller.pushScene("first");	
 };
 
 function AppAssistant() {}

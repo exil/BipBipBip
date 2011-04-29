@@ -60,6 +60,8 @@ AlarmListAssistant.prototype.setup = function() {
 	else {
 		Bip.saveAlarms((function() {
 			this.controller.get("spinner-container").hide();
+			this.alarmListModel.items = Bip.alarms;
+			this.controller.modelChanged(this.alarmListModel, this);
 		}).bind(this));
 	}
 	

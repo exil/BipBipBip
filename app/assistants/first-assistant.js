@@ -1,37 +1,61 @@
 function FirstAssistant() {
-	/* this is the creator function for your scene assistant object. It will be passed all the 
-	   additional parameters (after the scene name) that were passed to pushScene. The reference
-	   to the scene controller (this.controller) has not be established yet, so any initialization
-	   that needs the scene controller should be done in the setup function below. */
 }
 
 FirstAssistant.prototype.setup = function() {
-	/* this function is for setup tasks that have to happen when the scene is first created */
-		
-	/* use Mojo.View.render to render view templates and add them to the scene, if needed */
+	// set up alarm services
+	Alarm.setupEvents = (function(alarm) {
+		Mojo.Log.error("Setting up events for "+alarm.title+" at "+Alarm.formatNextTime(alarm));
+		this.controller.serviceRequest("palm://com.palm.power/timeout", {
+			method: "set",
+			parameters: {
+				"wakeup" : true,
+				"key" : "com.rboyce.bipbipbip."+alarm.id,
+				"uri": "palm://com.palm.applicationManager/open",
+				"at" : Alarm.formatNextTime(alarm),
+				"params" : "{'id':'com.rboyce.bipbipbip','params': {'alarm': '"+alarm.id+"'}}"
+			}
+		});
+		// add events for each chained alarm
+		if(alarm.alarmChain && alarm.alarmChain.length) {
+			alarm.alarmChain.forEach(function(chain) {
+				Alarm.setupEvents(chain);
+			});
+		}
+	}).bind(this);
+	Alarm.removeEvents = (function(alarm) {
+		Mojo.Log.error("Removing events for "+alarm.title);
+		this.controller.serviceRequest("palm://com.palm.power/timeout", {
+			method: "clear",
+			parameters: {
+				"key" : "com.rboyce.bipbipbip."+alarm.id
+			}
+		}); 
+		// remove events for each chained alarm
+		if(alarm.alarmChain) {
+			alarm.alarmChain.forEach(function(chain) {
+				Alarm.removeEvents(chain);
+			});
+		}
+	}).bind(this);
 	
-	/* setup widgets here */
-	
-	/* update the app info using values from our app */
-	this.controller.get("app-title").update(Mojo.appInfo.title);
-	this.controller.get("app-id").update(Mojo.appInfo.id);
-	this.controller.get("app-version").update(Mojo.appInfo.version);
-	
-	if(Bip.alarmSource) {
-			this.controller.get("app-version").update(Mojo.appInfo.version + ": " + Bip.alarmSource);
+	if(Bip.alarms === undefined) {
+		Bip.alarms = [];
+		Bip.loadAlarms((function() {
+			Mojo.Controller.stageController.swapScene("alarmList");
+		}).bind(this));
+	}
+	else {
+		Bip.saveAlarms((function() {
+			Mojo.Controller.stageController.swapScene("alarmList");
+		}).bind(this));
 	}
 	
-	/* add event handlers to listen to events from widgets */
-	this.controller.serviceRequest("palm://com.palm.power/timeout", {
-	method: "set",
-	parameters: {
-		"wakeup" : true,
-		"key" : "egg1",
-		"uri": "palm://com.palm.applicationManager/open",
-		"in" : "00:05:00",
-		"params" : "{'id':'com.rboyce.bipbipbip','params': {'alarm': 'fart poo'}}"
-	}
-}); 
+	this.controller.setupWidget("big-spinner", 
+		{
+			spinnerSize: Mojo.Widget.spinnerLarge
+		}, 
+		{}
+	);
 };
 
 FirstAssistant.prototype.activate = function(event) {
