@@ -13,10 +13,10 @@ function Alarm(time) {
 	
 	// generate unique id
 	this.id = (new Date()).getTime();
-	
-	this.title;
 
 	this.time = time;
+	
+	this.title = undefined;
 	
 	this.enabled = true;
 	
@@ -29,104 +29,111 @@ function Alarm(time) {
 	
 	this.sound = null;
 	
-	// The list of AlarmGames to choose from for this alarm
+	// The list of AlarmGame ids to choose from for this alarm
 	this.activeGames = [];
 	// the number of games to be completed as part of the alarm
 	this.gameCount = 0;
 	
 	this.alarmChain = [];
 }
-
 Alarm.daysOfWeek = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
-
-/**
- * Sets the time of the Alarm
- * 
- * @this {Alarm}
- * @param {number} hour The hour (0-23) of the alarm
- * @param {number} minute The minute (0-59) of the alarm
- */
-Alarm.prototype.setTime = function(time) {
-	this.time = time;
-};
-/**
- * Sets the days of the week that the Alarm should repeat
- * 
- * @this {Alarm}
- * @param {Array} days The days of the week that the alarm should repeat (["sun", "mon", "tue", "wed", "thu", "fri", "sat"])
- */
-Alarm.prototype.setRepeat = function(days) {
-	this.repeat = days;
-	if(this.enabled) {
-		this.setupEvents();
-	}
-};
-/**
- * Sets the Alarm's ringer sound
- * 
- * @this {Alarm}
- * @param {AlarmSound} sound The sound to be played when the Alarm goes off. Null for no sound.
- */
-Alarm.prototype.setSound = function(sound) {
-	this.sound = sound;
-};
-/**
- * Enables this Alarm
- * 
- * @this {Alarm}
- */
-Alarm.prototype.enable = function() {
-	if(!this.enabled) {
-		this.setupEvents();
-	}
-	this.enabled = true;
-};
-/**
- * Disables this Alarm
- * 
- * @this {Alarm}
- */
-Alarm.prototype.disable = function() {
-	if(this.enabled) {
-		this.removeEvents();
-	}
-	this.enabled = false;
-};
 /**
  * TODO: Sets up the Alarm as a background event
  * 
  * @this {Alarm}
  */
-Alarm.prototype.setupEvents = function() {
+Alarm.setupEvents = function(alarm) {
 	// add events for each chained alarm
-	if(this.alarmChain) {
-		this.alarmChain.forEach(function(chain) {
-			chain.setupEvents();
+	if(alarm.alarmChain) {
+		alarm.alarmChain.forEach(function(chain) {
+			Alarm.setupEvents(chain);
 		});
 	}
 	// TODO:
+};
+Alarm.prototype.setupEvents = function(alarm) {
+	Alarm.setupEvents(this);
 };
 /**
  * TODO: Removes background events associated with this Alarm
  * 
  * @this {Alarm}
  */
-Alarm.prototype.removeEvents = function() {
+Alarm.removeEvents = function(alarm) {
 	// remove events for each chained alarm
-	if(this.alarmChain) {
-		this.alarmChain.forEach(function(chain) {
-			chain.removeEvents();
+	if(alarm.alarmChain) {
+		alarm.alarmChain.forEach(function(chain) {
+			Alarm.removeEvents(chain);
 		});
 	}
 	// TODO:
+};
+Alarm.prototype.removeEvents = function() {
+	Alarm.removeEvents(this);
 };
 /**
  * TODO: Called when the alarm goes off
  * 
  * @this {Alarm}
  */
-Alarm.prototype.trigger = function() {
+Alarm.trigger = function(alarm) {
 	// TODO:
+};
+Alarm.prototype.trigger = function() {
+	Alarm.trigger(this);
+};
+/**
+ * Format the date in the way required by webOS
+ * 
+ * @this {Alarm}
+ */
+Alarm.getNextTime = function(alarm) {
+	var nextTime;
+	if(alarm.time) {
+		nextTime = new Date();
+		nextTime.setHours(alarm.time.getHours());
+		nextTime.setMinutes(alarm.time.getMinutes());
+		if(nextTime < (new Date())) {
+			nextTime = new Date(nextTime.getTime() + 24*60*60*1000);
+			nextTime.setHours(alarm.time.getHours());	 // this is to avoid DST bugs..
+		}
+	}
+	if(alarm.repeatEnabled) {
+		var i;
+		for(i = 0; i < 7; i++) {
+			var checkDay = new Date(nextTime.getTime() + i*24*60*60*1000);
+			checkDay.setHours(alarm.time.getHours());	 // this is to avoid DST bugs..
+			if(alarm.repeat[checkDay.getDay()]) {
+				return checkDay;
+			}
+		}
+	}
+	if(alarm.offset) {
+		return (new Date(Alarm.getNextTime(alarm.parent).getTime() + (offset * 60000)));
+	}
+	return nextTime;
+};
+Alarm.prototype.getNextTime = function() {
+	Alarm.getnextTime(this);
+};
+Alarm.formatNextTime = function(alarm) {
+	var nextTime = Alarm.getNextTime(alarm);
+	
+	if(nextTime) {
+		var mm = ("0"+(nextTime.getUTCMonth()+1)).slice(-2);
+		var dd = ("0"+nextTime.getUTCDate()).slice(-2);
+		var yyyy = nextTime.getUTCFullYear();
+		var hh = ("0"+nextTime.getUTCHours()).slice(-2);
+		var nn = ("0"+nextTime.getUTCMinutes()).slice(-2);
+		
+		return mm+"/"+dd+"/"+yyyy+" "+hh+":"+nn+":00";
+	}
+	else {
+		return false;
+	}
+};
+Alarm.prototype.formatNextTime = function() {
+	Alarm.formatNextTime(this);
 };
 
 /**
@@ -136,9 +143,11 @@ Alarm.prototype.trigger = function() {
  * @this {ChainAlarm}
  * @param {offset} offset The time offset in minutes from the base alarm
  */
-function ChainAlarm(offset) {
+function ChainAlarm(parent, offset) {
 	// generate unique id
 	this.id = new Date().getTime();
+	
+	this.parent = parent;
 	
 	this.offset = offset;
 	
@@ -148,17 +157,7 @@ function ChainAlarm(offset) {
 	
 	this.games = [];
 }
-ChainAlarm.prototype = new Alarm;
-/**
- * Sets the time of the  ChainAlarm
- * 
- * @this {ChainAlarm}
- * @param {number} offset The offset of the followup in minutes (may be negative)
- */
-ChainAlarm.prototype.setTime = function(offset) {
-	this.offset = offset;
-};
-ChainAlarm.prototype.setRepeat = undefined;
+ChainAlarm.prototype = new Alarm();
 
 
 /**
@@ -174,7 +173,7 @@ function AlarmSound(name, path) {
 	this.name = name;
 	this.path = path;
 	this.duration = duration;
-};
+}
 
 /**
  * Represents a minigame be played
@@ -188,4 +187,4 @@ function AlarmSound(name, path) {
 function AlarmGame(name, play) {
 	this.name = name;
 	this.play = play;
-};
+}

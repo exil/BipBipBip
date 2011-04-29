@@ -5,6 +5,43 @@ function AlarmListAssistant(alarm) {
 }
 
 AlarmListAssistant.prototype.setup = function() {
+	
+	// set up alarm services
+	Alarm.setupEvents = (function(alarm) {
+		Mojo.Log.error("Setting up events for "+alarm.title+" at "+Alarm.formatNextTime(alarm));
+		this.controller.serviceRequest("palm://com.palm.power/timeout", {
+			method: "set",
+			parameters: {
+				"wakeup" : true,
+				"key" : "com.rboyce.bipbipbip."+alarm.id,
+				"uri": "palm://com.palm.applicationManager/open",
+				"at" : Alarm.formatNextTime(alarm),
+				"params" : "{'id':'com.rboyce.bipbipbip','params': {'alarm': '"+alarm.id+"'}}"
+			}
+		});
+		// add events for each chained alarm
+		if(alarm.alarmChain && alarm.alarmChain.length) {
+			alarm.alarmChain.forEach(function(chain) {
+				Alarm.setupEvents(chain);
+			});
+		}
+	}).bind(this);
+	Alarm.removeEvents = (function(alarm) {
+		Mojo.Log.error("Removing events for "+alarm.title);
+		this.controller.serviceRequest("palm://com.palm.power/timeout", {
+			method: "clear",
+			parameters: {
+				"key" : "com.rboyce.bipbipbip."+alarm.id
+			}
+		}); 
+		// remove events for each chained alarm
+		if(alarm.alarmChain) {
+			alarm.alarmChain.forEach(function(chain) {
+				Alarm.removeEvents(chain);
+			});
+		}
+	}).bind(this);
+	
 	if(Bip.alarms === undefined) {
 		Bip.alarms = [];
 		Bip.loadAlarms((function() {
@@ -21,8 +58,12 @@ AlarmListAssistant.prototype.setup = function() {
 		}).bind(this));
 	}
 	else {
-		this.controller.get("spinner-container").hide();
+		Bip.saveAlarms((function() {
+			this.controller.get("spinner-container").hide();
+		}).bind(this));
 	}
+	
+	this.controller.get("header-details").innerHTML = Bip.alarmSource;
 	
 	this.controller.setupWidget("big-spinner", 
 		{

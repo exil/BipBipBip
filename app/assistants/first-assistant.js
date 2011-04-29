@@ -29,7 +29,7 @@ FirstAssistant.prototype.setup = function() {
 		"key" : "egg1",
 		"uri": "palm://com.palm.applicationManager/open",
 		"in" : "00:05:00",
-		"params" : "{'id':'com.rboyce.bipbipbip','params': {'alarm': 'test'}}"
+		"params" : "{'id':'com.rboyce.bipbipbip','params': {'alarm': 'fart poo'}}"
 	}
 }); 
 };

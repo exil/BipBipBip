@@ -1,19 +1,21 @@
 Bip = {
-	saveAlarms: function(callback) {
+	saveAlarms: function(callback) {	
 		// set up DB if not already
 		if(!Bip.DB) {
-			Bip.DB = new Mojo.Depot(
-				{
-					name:"alarms"
-				}, 
-				function() {
-					Bip.saveAlarms(callback);
-				}
-			);
+			Bip.loadAlarms(function() {
+				Bip.saveAlarms(callback);
+			});
 		}
 		else {
 			Bip.alarms.forEach(function(alarm) {
-				Mojo.Log.error("alarm: %j", alarm);
+				Alarm.removeEvents(alarm);
+				if(alarm.enabled) {
+					Alarm.setupEvents(alarm);
+				}
+				
+				// Mojo.Log.error("alarm: %j", alarm);
+				
+				// Reformat time to string for database 
 				if(typeof alarm !== "string") {
 					alarm.time = alarm.time.toUTCString();
 				}
@@ -25,6 +27,7 @@ Bip = {
 				callback
 			);
 			Bip.alarms.forEach(function(alarm) {
+				// Reformat string to time
 				alarm.time = new Date(alarm.time);
 			});
 		}
@@ -89,33 +92,15 @@ Array.prototype.removeAll = function(remove) {
 function StageAssistant() {}
 
 StageAssistant.prototype.setup = function() {
-	/*
-		boyce's code
-	var alarm = new Alarm(new Date("October 13, 1975 11:00:00"));
-	alarm.title = "Test Alarm 1";
-	alarm.repeat = ["mon", "wed", "fri"];
-	Bip.alarms.push(alarm);
-	alarm = new Alarm(new Date());
-	alarm.title = "Test Alarm 2";
-	alarm.repeat = [];
-	Bip.alarms.push(alarm);
-	alarm = new Alarm(new Date());
-	alarm.title = "Test Alarm 3";
-	alarm.repeat = ["mon", "tue", "wed", "thu", "fri"];
-	Bip.alarms.push(alarm);
-	alarm = new Alarm(new Date());
-	alarm.title = "Test Alarm 4";
-	alarm.repeat = ["sun", "tue", "wed", "thu", "fri"];
-	Bip.alarms.push(alarm);
-	*/
-	
 	this.controller.pushScene("alarmList");	
 };
 
 function AppAssistant() {}
 
-AppAssistant.prototype.handleLaunch = function(params) {   
+AppAssistant.prototype.handleLaunch = function(params) {  
+	Bip.alarmSource = "normal";
 	 if(params && params.alarm) {
 		Bip.alarmSource = params.alarm;
+		Mojo.Log.error("Launched by "+Bip.alarmSource);
 	 }
 };

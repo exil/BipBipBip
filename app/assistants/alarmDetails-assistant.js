@@ -17,7 +17,6 @@ AlarmDetailsAssistant.prototype.setup = function() {
 		}
 	}
 
-	/*
 	this.controller.setupWidget(
 		"enabled", 
 		{
@@ -32,14 +31,13 @@ AlarmDetailsAssistant.prototype.setup = function() {
 		Mojo.Event.propertyChange, 
 		(function(event) {
 			if(event.value) {
-				this.alarm.enable();
+				this.alarm.enabled = true;
 			}
 			else {
-				this.alarm.disable();
+				this.alarm.enabled = false;
 			}
 		}).bind(this)
 	);
-	*/
 
 	this.controller.setupWidget(
 		"title", 
