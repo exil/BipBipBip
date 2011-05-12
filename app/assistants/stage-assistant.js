@@ -1,5 +1,8 @@
 Bip = {
-	saveAlarms: function(callback) {	
+	saveAlarms: function(callback) {
+		Bip.nextAlarmTime = false;
+		Bip.nextAlarmTitle = false;
+	
 		// set up DB if not already
 		if(!Bip.DB) {
 			Bip.loadAlarms(function() {
@@ -13,6 +16,12 @@ Bip = {
 					Alarm.setupEvents(alarm);
 				}
 				
+				var nextTime = Alarm.getNextTime(alarm);
+				if(alarm.enabled && (!Bip.nextAlarmTime || nextTime < Bip.nextAlarmTime)) {
+					Bip.nextAlarmTime = nextTime;
+					Bip.nextAlarmTitle = alarm.title;
+				}
+				
 				// Mojo.Log.error("alarm: %j", alarm);
 				
 				// Reformat time to string for database 
@@ -20,7 +29,7 @@ Bip = {
 					alarm.time = alarm.time.toUTCString();
 				}
 			});
-			Mojo.Log.error("Saving to DB: %j", {alarms: Bip.alarms});
+			Mojo.Log.error("Saving to DB");
 			Bip.DB.add(
 				"alarmList", 
 				{alarms: Bip.alarms}, 
@@ -48,7 +57,7 @@ Bip = {
 			Bip.DB.get(
 				"alarmList", 
 				function(result) {
-					Mojo.Log.error("Loaded from DB: %j", result);
+					Mojo.Log.error("Loaded from DB");
 					if(result && result.alarms) {
 						Bip.alarms = result.alarms;
 					}
@@ -98,9 +107,8 @@ StageAssistant.prototype.setup = function() {
 function AppAssistant() {}
 
 AppAssistant.prototype.handleLaunch = function(params) {  
-	Bip.alarmSource = "normal";
 	 if(params && params.alarm) {
 		Bip.alarmSource = params.alarm;
-		Mojo.Log.error("Launched by "+Bip.alarmSource);
+		Mojo.Log.error("Launched by alarm "+Bip.alarmSource);
 	 }
 };

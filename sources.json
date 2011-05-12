@@ -1,7 +1,6 @@
 [
     {"source": "app/assistants/stage-assistant.js"},
     {"source": "app/models/Alarm.js"},
-    {"source": "app/zepto.min.js"},
     {
         "scenes": "first",
         "source": "app/assistants/first-assistant.js"
@@ -17,5 +16,9 @@
 	{
 		"scenes": "setupQuestions",
 		"source": "app/assistants/setupQuestions-assistant.js"
+	},
+	{
+		"scenes": "question",
+		"source": "app/assistants/question-assistant.js"
 	}
 ]

@@ -5,7 +5,6 @@ function AlarmListAssistant(alarm) {
 }
 
 AlarmListAssistant.prototype.setup = function() {
-	
 	// set up alarm services
 	Alarm.setupEvents = (function(alarm) {
 		Mojo.Log.error("Setting up events for "+alarm.title+" at "+Alarm.formatNextTime(alarm));
@@ -22,7 +21,8 @@ AlarmListAssistant.prototype.setup = function() {
 		// add events for each chained alarm
 		if(alarm.alarmChain && alarm.alarmChain.length) {
 			alarm.alarmChain.forEach(function(chain) {
-				Alarm.setupEvents(chain);
+				// TODO: re-add follow-up alarms
+				// Alarm.setupEvents(chain);
 			});
 		}
 	}).bind(this);
@@ -37,7 +37,8 @@ AlarmListAssistant.prototype.setup = function() {
 		// remove events for each chained alarm
 		if(alarm.alarmChain) {
 			alarm.alarmChain.forEach(function(chain) {
-				Alarm.removeEvents(chain);
+				// TODO: re-add follow-up alarms
+				// Alarm.removeEvents(chain);
 			});
 		}
 	}).bind(this);
@@ -65,7 +66,21 @@ AlarmListAssistant.prototype.setup = function() {
 		}).bind(this));
 	}
 	
-	this.controller.get("header-details").innerHTML = Bip.alarmSource;
+	if(Bip.alarmSource) {
+		this.controller.get("header-details").innerHTML = "<strong>Launched by:</strong> "+Bip.alarmSource;
+	}
+	else {
+		var showNextTime = (function() {
+			if(Bip.nextAlarmTime) {
+				this.controller.get("header-details").innerHTML = "<strong>Next:</strong> "+Bip.nextAlarmTitle+" in "+Alarm.printRelativeTime(Bip.nextAlarmTime);
+			}
+			else {
+				this.controller.get("header-details").innerHTML = "<strong>Next:</strong> There are no alarms set to go off.";
+			}
+		}).bind(this);
+		showNextTime();
+		setInterval(showNextTime, 1000);
+	}
 	
 	this.controller.setupWidget("big-spinner", 
 		{

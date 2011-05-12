@@ -1,12 +1,30 @@
-<div class="palm-row chainAlarm removable" x-mojo-gesture="Mojo.Gesture.HorizontalDrag">
+<div class="palm-row chain-alarm removable" x-mojo-gesture="Mojo.Gesture.HorizontalDrag">
 	<div class="palm-row-wrapper">
-		<div class="chain-header">
-			<div name="chain-delete" class="delete" x-mojo-touch-feedback="delayed">Delete</div>
-			Follow-up Alarm #{index}
+		<div class="palm-list inner">
+			<div class="chain-header">
+				<div name="chain-delete" class="delete" x-mojo-touch-feedback="delayed">Delete</div>
+				Follow-up Alarm #{index}
+			</div>
+			<div class="palm-row chain-time">
+				<div class="palm-row-wrapper">
+					<div x-mojo-element="ToggleButton" class="chain-before" name="chainBefore"></div>
+					<div x-mojo-element="ListSelector" class="chain-offset" name="chainOffset"></div>
+					<div class="clear"></div>
+				</div>
+			</div>
+			<!--
+			<div class="palm-row truncating-text">
+				<div class="palm-row-wrapper">
+					Enable snooze
+				</div>
+			</div>
+			-->
+			<div class="palm-row truncating-text">
+				<div class="palm-row-wrapper">
+					<div x-mojo-element="ToggleButton" class="chain-games" name="chainGames"></div>
+					<span class="">Enable games</span>
+				</div>
+			</div>
 		</div>
-		<div class="title truncating-text">
-			#{title}
-		</div>
-		<div style="clear: both;"></div>
 	</div>
 </div>

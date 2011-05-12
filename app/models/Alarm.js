@@ -29,6 +29,7 @@ function Alarm(time) {
 	
 	this.sound = null;
 	
+	this.gameType = "game";
 	// The list of AlarmGame ids to choose from for this alarm
 	this.activeGames = [];
 	// the number of games to be completed as part of the alarm
@@ -90,6 +91,9 @@ Alarm.prototype.trigger = function() {
 Alarm.getNextTime = function(alarm) {
 	var nextTime;
 	if(alarm.time) {
+		if(alarm.time.getHours === undefined) {
+			alarm.time = new Date(alarm.time);
+		}
 		nextTime = new Date();
 		nextTime.setHours(alarm.time.getHours());
 		nextTime.setMinutes(alarm.time.getMinutes());
@@ -135,6 +139,42 @@ Alarm.formatNextTime = function(alarm) {
 Alarm.prototype.formatNextTime = function() {
 	Alarm.formatNextTime(this);
 };
+Alarm.printRelativeTime = function(time, baseTime) {
+	if(baseTime === undefined) {
+		baseTime = new Date();
+	}
+	
+	var diff = (time.getTime() - baseTime.getTime()) / 1000;
+	
+	if(diff < 60) {
+		if(diff === 1) {
+			return "1 second";
+		}
+		return diff+" seconds";
+	}
+	
+	diff = Math.floor(diff/60);
+	if(diff < 60) {
+		if(diff === 1) {
+			return "1 minute";
+		}
+		return diff+" minutes";
+	}
+	
+	diff = Math.floor(diff/60);
+	if(diff < 72) {
+		if(diff === 1) {
+			return "1 hour";
+		}
+		return diff+" hours";
+	}
+	
+	diff = Math.floor(diff/24);
+	return diff+" days";
+};
+Alarm.prototype.printRelativeTime = function() {
+	Alarm.printRelativeTime(Alarm.getNextTime(this));
+};
 
 /**
  * Creates a relative ChainAlarm object
@@ -155,7 +195,7 @@ function ChainAlarm(parent, offset) {
 	
 	this.sound = null;
 	
-	this.games = [];
+	this.playGames = false;
 }
 ChainAlarm.prototype = new Alarm();
 

@@ -46,7 +46,8 @@ AlarmDetailsAssistant.prototype.setup = function() {
 			enterSubmits: false,
 			autoFocus: this.isNewAlarm,
 			changeOnKeyPress: true,
-			hintText: "Alarm"
+			hintText: "Alarm",
+			textCase: Mojo.Widget.steModeTitleCase
 		}, 
 		{
 			value: this.alarm.title,
@@ -207,13 +208,29 @@ AlarmDetailsAssistant.prototype.setup = function() {
 		disabled: false
 	}
 	);
+	Mojo.Event.listen(
+		this.controller.get("minigames-row"), 
+		Mojo.Event.tap, 
+		(function(event) {
+			Mojo.Controller.stageController.pushScene("setupQuestions", this.alarm);
+		}).bind(this)
+	);
 	
 	this.controller.setupWidget("chainList",
 		this.chainListAttributes = {
 			itemTemplate: "alarmDetails/chainListItem",
 			listTemplate: "alarmDetails/chainListContainer",
 			swipeToDelete: true,
-			reorderable: false
+			reorderable: false,
+			formatters: {
+				setRelativeTimeDisplay: function(propertyValue, model) {
+					if(model.offset !== undefined) {
+						model.absoluteOffset = Math.abs(model.offset);
+						model.isBefore = (model.offset < 0);
+						// Mojo.Log.error("ChainAlarm: %j", model);
+					}
+				}
+			}
 		},
 		this.chainListModel = {
 			listTitle: $L("Chain Alarms"),
@@ -234,13 +251,53 @@ AlarmDetailsAssistant.prototype.setup = function() {
 			this.alarm.alarmChain.splice(event.fromIndex, 1);
 			this.alarm.alarmChain.splice(event.toIndex, 0, event.item);
 		}).bind(this)
+	);
+	this.controller.setupWidget(
+		"chainBefore", 
+		{
+			trueLabel: "before",
+			falseLabel: "after",
+			modelProperty: "isBefore"
+		}, 
+		{}
+	);
+	this.controller.setupWidget(
+		"chainOffset",
+		{
+			choices: [
+				{label: "5 minutes", value: 5},
+				{label: "10 minutes", value: 10},
+				{label: "20 minutes", value: 20},
+				{label: "1 hour", value: 60},
+				{label: "2 hours", value: 120},
+				{label: "8 hours", value: 480}
+		   ],
+			multiline: true,
+			modelProperty: "absoluteOffset"
+		}, 
+		{}
+	);
+	this.controller.setupWidget(
+		"chainGames",
+		{modelProperty: 'playGames'}
+	);
+	Mojo.Event.listen(
+		this.controller.get("chainList"), 
+		Mojo.Event.propertyChange,
+		(function(event) {
+			this.alarm.alarmChain.forEach(function(chain) {
+				if(chain.absoluteOffset !== undefined && chain.isBefore !== undefined) {
+					chain.offset = (chain.isBefore ? (-1*chain.absoluteOffset) : chain.absoluteOffset);
+				}
+			});
+		}).bind(this)
 	); 
 	
 	Mojo.Event.listen(
 		this.controller.get("addChain"), 
 		Mojo.Event.tap, 
 		(function() {
-			this.alarm.alarmChain.push(new ChainAlarm());
+			this.alarm.alarmChain.push(new ChainAlarm(this.alarm, 10));
 			this.controller.modelChanged(this.chainListModel, this);
 		}).bind(this)
 	); 
@@ -275,6 +332,7 @@ AlarmDetailsAssistant.prototype.setup = function() {
 };
 
 AlarmDetailsAssistant.prototype.activate = function(event) {
+	this.controller.get("minigames-details").innerHTML = this.alarm.gameCount + " " + this.alarm.gameType + (this.alarm.gameCount === 1 ? "" : "s");
 };
 
 AlarmDetailsAssistant.prototype.deactivate = function(event) {

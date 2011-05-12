@@ -6,7 +6,7 @@
 <div class="palm-page-header">
 	<div class="palm-page-header-wrapper">
 		<div x-mojo-element="ToggleButton" id="enabled"></div>
-		<div class="title left" id="headerTitle">Add new alarm</div>
+		<div class="title left truncating-text" id="headerTitle">Add new alarm</div>
 	</div>
 </div>
 	
@@ -53,11 +53,13 @@
 		</div>
    </div>
 	
-	<div class="palm-row minigames">
+	<div id="minigames-row" class="palm-row minigames">
 		<div class="palm-row-wrapper">
 			<div class="label right">
 				 <div class="symbol">&rsaquo;</div>
 				Games
+			</div>
+			<div id="minigames-details" class="row-details truncating-text">
 			</div>
 		</div>
    </div>
@@ -65,8 +67,8 @@
 
 <div x-mojo-element="List" id="chainList">
 </div>
-<div id="addChain" class="capitalize" x-mojo-touch-feedback="delayed">
-	Add a follow-up alarm...
+<div id="addChain" class="capitalize truncating-text" x-mojo-touch-feedback="delayed">
+	Add a follow-up alarm
 </div>
 
 <div class="scene-footer">

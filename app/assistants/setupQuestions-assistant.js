@@ -1,8 +1,14 @@
-function SetupQuestionsAssistant() {
+function SetupQuestionsAssistant(alarm) {
 	/* this is the creator function for your scene assistant object. It will be passed all the 
 	   additional parameters (after the scene name) that were passed to pushScene. The reference
 	   to the scene controller (this.controller) has not be established yet, so any initialization
 	   that needs the scene controller should be done in the setup function below. */
+	   
+		Mojo.Log.error("poo: %j", alarm);
+		
+	   // set object alarm
+	   this.alarm = alarm;
+	   this.alarm.gameType = "question";
 }
 
 SetupQuestionsAssistant.prototype.setup = function() {
@@ -11,31 +17,45 @@ SetupQuestionsAssistant.prototype.setup = function() {
 	/* use Mojo.View.render to render view templates and add them to the scene, if needed */
 	
 	/* setup widgets here */
-	// ARITHMETIC
-		this.intModel = {intValue: 5};
-		this.controller.setupWidget('arithmeticPicker',
-			this.attributes = {
-				label: 'Arithmetic',
-				modelProperty: 'intValue',
-				min: 0,
-				max: 10
-			},
-			this.intModel
-		)
-		// this.propChange = this.propChange.bindAsEventListener(this);
-		// this.controller.listen('arithmeticPicker', Mojo.Event.propertyChange, this.propChange);
+	// arithmetic questions
+			
+	// this.intModel = {intValue: 5};
+	this.intModel = {intValue: this.alarm.gameCount}; // why da fuck doesn't this work
+	this.controller.setupWidget('arithmeticPicker',
+		this.attributes = {
+			label: 'Arithmetic',
+			modelProperty: 'intValue', 
+			// modelProperty: 'gameCount', // why da fuck doesn't this work
+			min: 0,
+			max: 10
+		},
+		this.intModel
+		// this.alarm.gameCount // why da fuck doesn't this work
+	);
 	
+	this.controller.listen('arithmeticPicker', Mojo.Event.propertyChange, (function(event) {
+		this.alarm.gameCount = this.intModel.intValue;
+	}).bind(this));
+
 	// save button
-		this.controller.setupWidget("saveButton",
-			{},
-			{
-				label : "Save",
-				disabled: false
-			}
-		);
-	
-	
-	/* add event handlers to listen to events from widgets */
+	this.controller.setupWidget("saveButton",
+		{},
+		{
+			label : "Save Questions",
+			buttonClass: "affirmative",
+			disabled: false
+		}
+	);
+	Mojo.Event.listen(
+		this.controller.get("saveButton"), 
+		Mojo.Event.tap, 
+		function() {
+			Bip.saveAlarms(function() {
+				Mojo.Controller.stageController.popScene(); // go to the appropriate scene
+			});
+			
+		}
+	); 
 };
 
 SetupQuestionsAssistant.prototype.activate = function(event) {
